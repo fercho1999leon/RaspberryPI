@@ -28,6 +28,7 @@ chan3 = AnalogIn(ads, ADS.P3)
 #
 gains = (2 / 3, 1, 2, 4, 8, 16)
 ads.gain = gains[1]
+#Ejecucion de bucle infinito
 while True:
     voltaje = ZMPT101B(250,26432,[chan,chan1,chan2,chan3],[13171.0,13221.0,13221.0,13156.0])
     voltaje.getVoltajeAC()
