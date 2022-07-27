@@ -7,9 +7,14 @@ class ZMPT101B:
     # AnalogoInput = [A0,A1,A2,A3] entradas analogicas
     # CalibracionVoltaje0 = [v1,v2,v3,v4] valor de entradas analogicas cuando voltaje es 0
     def __init__(self, VoltajeRef, ResolucionAnalogica, AnalogoInput, CalibracionVoltaje0):
+<<<<<<< HEAD
         self.__NFrecuencia = 50
         self.__Nmuestras = 20
         self.__Micros = lambda: int(round(time.time() * 100000000))
+=======
+        self.__NFrecuencia = 60
+        self.__Micros = lambda: int(round(time.time() * 10000000))
+>>>>>>> b5abe49293515a9dcabb8448618027728d8581db
         self.__Muestra = [0]*4
         self.__VoltajeRef = VoltajeRef
         self.__Sensivilidad = 0.039
@@ -18,8 +23,12 @@ class ZMPT101B:
         self.__AnalogoInput = AnalogoInput
 
     def getVoltajeAC(self):
+<<<<<<< HEAD
         for i in range(self.__Nmuestras):
             periodo = 100000000 / self.__NFrecuencia
+=======
+            periodo = 1000000 / self.__NFrecuencia
+>>>>>>> b5abe49293515a9dcabb8448618027728d8581db
             time_start = self.__Micros()
             VoltajeSuma = [0]*4
             preiodo_contador = 0
@@ -36,6 +45,7 @@ class ZMPT101B:
                 VoltajeSuma[3] += VoltajeActual[3]*VoltajeActual[3]
 
                 preiodo_contador=preiodo_contador+1
+<<<<<<< HEAD
             temp = [0]*4
 
             temp[0] = math.sqrt(VoltajeSuma[0] / preiodo_contador) / self.__ResolucionAnalogica * self.__VoltajeRef / self.__Sensivilidad
@@ -50,3 +60,12 @@ class ZMPT101B:
         
         
         return self.__Muestra
+=======
+
+            self.__Muestra[0] = (math.sqrt(VoltajeSuma[0] / preiodo_contador) * self.__VoltajeRef) / self.__ResolucionAnalogica
+            self.__Muestra[1] = (math.sqrt(VoltajeSuma[1] / preiodo_contador) * self.__VoltajeRef) / self.__ResolucionAnalogica
+            self.__Muestra[2] = (math.sqrt(VoltajeSuma[2] / preiodo_contador) * self.__VoltajeRef) / self.__ResolucionAnalogica
+            self.__Muestra[3] = (math.sqrt(VoltajeSuma[3] / preiodo_contador) * self.__VoltajeRef) / self.__ResolucionAnalogica
+            
+        return self.__Muestra
+>>>>>>> b5abe49293515a9dcabb8448618027728d8581db
