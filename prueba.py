@@ -1,3 +1,4 @@
+import time
 import board
 import busio
 import adafruit_ads1x15.ads1115 as ADS
@@ -28,7 +29,9 @@ chan3 = AnalogIn(ads, ADS.P3)
 #
 gains = (2 / 3, 1, 2, 4, 8, 16)
 ads.gain = gains[1]
+ads.data_rate = 860
 #Ejecucion de bucle infinito
 while True:
-    voltaje = ZMPT101B(250,26432,[chan,chan1,chan2,chan3],[13171.0,13221.0,13221.0,13156.0])
-    voltaje.getVoltajeAC()
+    voltaje = ZMPT101B(240,26432,[chan,chan1,chan2,chan3],[13171.0,13221.0,13221.0,13220.4])
+    v = voltaje.getVoltajeAC()
+    print(v[3])

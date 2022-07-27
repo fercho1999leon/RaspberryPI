@@ -29,7 +29,7 @@ sensorValue1 = 0
 sensorValue2 = 0
 crosscount = 0
 climb_flag = 0
-val =[0]*100
+val =0
 max_v = 0
 VmaxD = 0
 VeffD = 0
@@ -57,23 +57,22 @@ print("-"*20)
 cont = 0
 
 muestra = 0
-for i in range(60):
-    periodo = 10000000 / 60
-    t_start = micros()
-    Vsum = 0
-    measurements_count = 0
-    Vnow = 0
-    while (micros() - t_start < periodo):
-        Vnow = chan3.value
-        Vsum = Vsum + Vnow
-        measurements_count=measurements_count+1
-    val[i] = Vsum / measurements_count
-    for i in range(60):
-        if val[i] > muestra:
-            muestra = val[i]
-            cont = cont + 1
-        val[i] = 0
-print (muestra/cont)
+
+ads.data_rate = 860
+
+periodo = 100000000 / 60
+t_start = micros()
+Vsum = 0
+measurements_count = 0
+Vnow = 0
+while (micros() - t_start < periodo):
+    print(t_start)
+    Vnow = chan3.value
+    Vsum = Vsum + Vnow
+    measurements_count=measurements_count+1
+val = Vsum / measurements_count
+print("finalllll")
+print (val)
     
 
 #while cont < 60:
