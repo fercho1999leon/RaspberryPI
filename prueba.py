@@ -1,4 +1,3 @@
-import time
 import board
 import busio
 import adafruit_ads1x15.ads1115 as ADS
@@ -32,6 +31,6 @@ ads.gain = gains[1]
 ads.data_rate = 860
 #Ejecucion de bucle infinito
 while True:
-    voltaje = ZMPT101B(240,26432,[chan,chan1,chan2,chan3],[13171.0,13221.0,13221.0,13220.4])
+    voltaje = ZMPT101B(140,26432,[chan,chan1,chan2,chan3],[13171.681818181818,13221.0,13221.0,13171.666666666666])
     v = voltaje.getVoltajeAC()
-    print(v[3])
+    print("v1: {:>5.3f}\tv2: {:>5.3f}".format(v[0],v[3]))

@@ -58,33 +58,20 @@ cont = 0
 
 muestra = 0
 
-<<<<<<< HEAD
 ads.data_rate = 860
 
-periodo = 100000000 / 60
-=======
-periodo = 1000000 / 60
->>>>>>> b5abe49293515a9dcabb8448618027728d8581db
+periodo = 100000000 / 50
 t_start = micros()
 Vsum = 0
 measurements_count = 0
 Vnow = 0
 while (micros() - t_start < periodo):
-<<<<<<< HEAD
     print(t_start)
     Vnow = chan3.value
     Vsum = Vsum + Vnow
     measurements_count=measurements_count+1
 val = Vsum / measurements_count
 print("finalllll")
-=======
-    Vnow = chan3.value
-    Vsum += Vnow
-    measurements_count=measurements_count+1
-val = Vsum / measurements_count
-
-
->>>>>>> b5abe49293515a9dcabb8448618027728d8581db
 print (val)
     
 

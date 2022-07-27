@@ -8,22 +8,18 @@ class ZMPT101B:
     # CalibracionVoltaje0 = [v1,v2,v3,v4] valor de entradas analogicas cuando voltaje es 0
     def __init__(self, VoltajeRef, ResolucionAnalogica, AnalogoInput, CalibracionVoltaje0):
         self.__NFrecuencia = 50
-        self.__Nmuestras = 20
+        self.__Nmuestras = 30
         self.__Micros = lambda: int(round(time.time() * 100000000))
         self.__Muestra = [0]*4
         self.__VoltajeRef = VoltajeRef
-        self.__Sensivilidad = 0.039
+        self.__Sensivilidad = 0.037
         self.__ResolucionAnalogica = ResolucionAnalogica
         self.__CalibracionVoltaje0 = CalibracionVoltaje0  # ads1115 16 bits v0 = CalibracionVoltaje0
         self.__AnalogoInput = AnalogoInput
 
     def getVoltajeAC(self):
-<<<<<<< HEAD
         for i in range(self.__Nmuestras):
             periodo = 100000000 / self.__NFrecuencia
-=======
-            periodo = 1000000 / self.__NFrecuencia
->>>>>>> b5abe49293515a9dcabb8448618027728d8581db
             time_start = self.__Micros()
             VoltajeSuma = [0]*4
             preiodo_contador = 0
@@ -40,7 +36,6 @@ class ZMPT101B:
                 VoltajeSuma[3] += VoltajeActual[3]*VoltajeActual[3]
 
                 preiodo_contador=preiodo_contador+1
-<<<<<<< HEAD
             temp = [0]*4
 
             temp[0] = math.sqrt(VoltajeSuma[0] / preiodo_contador) / self.__ResolucionAnalogica * self.__VoltajeRef / self.__Sensivilidad
@@ -52,15 +47,17 @@ class ZMPT101B:
             self.__Muestra[1] = temp[1] if temp[1] > self.__Muestra[1] else self.__Muestra[1]
             self.__Muestra[2] = temp[2] if temp[2] > self.__Muestra[2] else self.__Muestra[2]
             self.__Muestra[3] = temp[3] if temp[3] > self.__Muestra[3] else self.__Muestra[3]
-        
-        
         return self.__Muestra
-=======
-
-            self.__Muestra[0] = (math.sqrt(VoltajeSuma[0] / preiodo_contador) * self.__VoltajeRef) / self.__ResolucionAnalogica
-            self.__Muestra[1] = (math.sqrt(VoltajeSuma[1] / preiodo_contador) * self.__VoltajeRef) / self.__ResolucionAnalogica
-            self.__Muestra[2] = (math.sqrt(VoltajeSuma[2] / preiodo_contador) * self.__VoltajeRef) / self.__ResolucionAnalogica
-            self.__Muestra[3] = (math.sqrt(VoltajeSuma[3] / preiodo_contador) * self.__VoltajeRef) / self.__ResolucionAnalogica
-            
-        return self.__Muestra
->>>>>>> b5abe49293515a9dcabb8448618027728d8581db
+    
+    def calibracion(self,inputA):
+        periodo = 100000000 / self.__NFrecuencia
+        time_start = self.__Micros()
+        VoltajeSuma = 0
+        preiodo_contador = 0
+        VoltajeActual = 0
+        while (self.__Micros() - time_start < periodo):
+            VoltajeActual = inputA.value
+            VoltajeSuma = VoltajeSuma + VoltajeActual
+            measurements_count=measurements_count+1
+        val = VoltajeSuma / preiodo_contador
+        return val
