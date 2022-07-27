@@ -7,14 +7,9 @@ class ZMPT101B:
     # AnalogoInput = [A0,A1,A2,A3] entradas analogicas
     # CalibracionVoltaje0 = [v1,v2,v3,v4] valor de entradas analogicas cuando voltaje es 0
     def __init__(self, VoltajeRef, ResolucionAnalogica, AnalogoInput, CalibracionVoltaje0):
-<<<<<<< HEAD
         self.__NFrecuencia = 50
         self.__Nmuestras = 20
         self.__Micros = lambda: int(round(time.time() * 100000000))
-=======
-        self.__NFrecuencia = 60
-        self.__Micros = lambda: int(round(time.time() * 10000000))
->>>>>>> b5abe49293515a9dcabb8448618027728d8581db
         self.__Muestra = [0]*4
         self.__VoltajeRef = VoltajeRef
         self.__Sensivilidad = 0.039
