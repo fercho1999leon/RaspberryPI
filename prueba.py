@@ -29,8 +29,16 @@ chan3 = AnalogIn(ads, ADS.P3)
 gains = (2 / 3, 1, 2, 4, 8, 16)
 ads.gain = gains[1]
 ads.data_rate = 860
+calibraA = [0]*2
+for i in range(10):
+    c = ZMPT101B()
+    calibraA[0]+=c.calibracion(chan)
+    calibraA[1]+=c.calibracion(chan3)
+print(calibraA[1]/10)
+print(calibraA[0]/10)
+
 #Ejecucion de bucle infinito
 while True:
-    voltaje = ZMPT101B(140,26432,[chan,chan1,chan2,chan3],[13171.681818181818,13221.0,13221.0,13171.666666666666])
+    voltaje = ZMPT101B(140,26432,[chan,chan1,chan2,chan3],[calibraA[0]/10,13221.0,13221.0,calibraA[1]/10])
     v = voltaje.getVoltajeAC()
     print("v1: {:>5.3f}\tv2: {:>5.3f}".format(v[0],v[3]))

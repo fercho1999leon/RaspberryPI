@@ -66,12 +66,10 @@ Vsum = 0
 measurements_count = 0
 Vnow = 0
 while (micros() - t_start < periodo):
-    print(t_start)
-    Vnow = chan3.value
+    Vnow = chan.value
     Vsum = Vsum + Vnow
     measurements_count=measurements_count+1
 val = Vsum / measurements_count
-print("finalllll")
 print (val)
     
 

@@ -1,9 +1,7 @@
 import socket
 import time
-import RPi.GPIO as GPIO
 import json
 from sensores.ZMPT101B import ZMPT101B
-
 import board
 import busio
 import adafruit_ads1x15.ads1115 as ADS
@@ -34,11 +32,14 @@ chan3 = AnalogIn(ads, ADS.P3)
 gains = (2 / 3, 1, 2, 4, 8, 16)
 ads.gain = gains[1]
 ads.data_rate = 860
-#Ejecucion de bucle infinito
+#Calibracion
+calibraA = [0]*2
+for i in range(10):
+    c = ZMPT101B()
+    calibraA[0]+=c.calibracion(chan)
+    calibraA[1]+=c.calibracion(chan3)
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setwarnings(False)
+#Ejecucion de bucle infinito
 
 while True:
     mi_socket = None
@@ -46,7 +47,7 @@ while True:
         mi_socket = socket.socket()
         mi_socket.connect(('144.126.143.111', 5478))
 
-        voltaje = ZMPT101B(140,26432,[chan,chan1,chan2,chan3],[13171.681818181818,13221.0,13221.0,13174.40909090909])
+        voltaje = ZMPT101B(140,26432,[chan,chan1,chan2,chan3],[calibraA[0]/10,13221.0,13221.0,calibraA[1]/10])
         v = voltaje.getVoltajeAC()
         SData = json.dumps({"V1": int(v[0]), "V2": int(v[3]), "A1":50, "A2":100})
         byt = SData.encode()

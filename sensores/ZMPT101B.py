@@ -6,7 +6,7 @@ class ZMPT101B:
     # ResolucionAnalogica = resolucion del sensor analogico
     # AnalogoInput = [A0,A1,A2,A3] entradas analogicas
     # CalibracionVoltaje0 = [v1,v2,v3,v4] valor de entradas analogicas cuando voltaje es 0
-    def __init__(self, VoltajeRef, ResolucionAnalogica, AnalogoInput, CalibracionVoltaje0):
+    def __init__(self, VoltajeRef=0, ResolucionAnalogica=0, AnalogoInput=0, CalibracionVoltaje0=0):
         self.__NFrecuencia = 50
         self.__Nmuestras = 30
         self.__Micros = lambda: int(round(time.time() * 100000000))
@@ -58,6 +58,6 @@ class ZMPT101B:
         while (self.__Micros() - time_start < periodo):
             VoltajeActual = inputA.value
             VoltajeSuma = VoltajeSuma + VoltajeActual
-            measurements_count=measurements_count+1
+            preiodo_contador=preiodo_contador+1
         val = VoltajeSuma / preiodo_contador
         return val
