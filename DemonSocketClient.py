@@ -1,4 +1,5 @@
 import socket
+import requests
 import time
 import json
 from sensores.ZMPT101B import ZMPT101B
@@ -39,27 +40,42 @@ for i in range(10):
     calibraA[0]+=c.calibracion(chan)
     calibraA[1]+=c.calibracion(chan3)
 
+#resp = requests.get('https://titulacion.sysnearnet.com/auth/api/login',params={'username': '1752349264', 'password': '1234'})
+if 201 == 201:
+    #resp = resp.json()
+    #token = resp["token"]
+    token = "36|BdJGfuW93NHB0B1JTyrb6fHzauakwuUyFuEUuPEp"
+    while True:
+        try:
+            voltaje = ZMPT101B(140,26432,[chan,chan1,chan2,chan3],[calibraA[0]/10,13221.0,13221.0,calibraA[1]/10])
+            v = voltaje.getVoltajeAC()
+            resp = requests.get('https://titulacion.sysnearnet.com/evento',headers={'Authorization': 'Bearer '+token},params={'v1': v[0],'v2': v[1],'v3': v[2],'v4': v[3]})
+            print (resp.text)
+            if resp.status_code == 201:
+                print (resp.json())
+                #time.sleep(0.3)
+        except:
+            print ("ERROR")
+            
+    
 #Ejecucion de bucle infinito
 
-while True:
-    mi_socket = None
-    try:
-        mi_socket = socket.socket()
-        mi_socket.connect(('144.126.143.111', 5478))
+    #try:
+        #mi_socket = socket.socket()
+        #mi_socket.connect(('144.126.143.111', 5478))
 
-        voltaje = ZMPT101B(140,26432,[chan,chan1,chan2,chan3],[calibraA[0]/10,13221.0,13221.0,calibraA[1]/10])
-        v = voltaje.getVoltajeAC()
-        SData = json.dumps({"V1": int(v[0]), "V2": int(v[3]), "A1":50, "A2":100})
-        byt = SData.encode()
-        mi_socket.send(byt)
+        
+        #SData = json.dumps({"V1": int(v[0]), "V2": int(v[3]), "A1":50, "A2":100})
+        #byt = SData.encode()
+        #mi_socket.send(byt)
         #-----------------------------------------------
-        resp = mi_socket.recv(1024)
-        print (resp)
+        #resp = mi_socket.recv(1024)
+        #print (resp)
         #st='Hola desde el cliente \n'
         #byt=st.encode()
             #mi_socket.send(byt);
-        mi_socket.close()
-        time.sleep(0.3)
-    except:
-        if mi_socket is not None:
-            mi_socket.close()
+        #mi_socket.close()
+        #time.sleep(0.3)
+    #except:
+    #    if mi_socket is not None:
+    #        mi_socket.close()
