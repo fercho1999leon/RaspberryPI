@@ -1,4 +1,3 @@
-from re import A
 import requests
 from multiprocessing.pool import ThreadPool
 from sensores.ZMPT101B import ZMPT101B
