@@ -1,24 +1,25 @@
-import socket
 import requests
-import time
-import json
 from sensores.ZMPT101B import ZMPT101B
 import board
 import busio
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
+from sensores.SCT013100 import SCT013100
 
 # Create the I2C bus
 i2c = busio.I2C(board.SCL, board.SDA)
 # Create the ADC object using the I2C bus
-ads = ADS.ADS1115(i2c)
+adsVoltage = ADS.ADS1115(i2c)
+adsAmper = ADS.ADS1115(i2c,address=0x49)
 #ads.mode = 256
-ads.mode = 256
+adsVoltage.mode = 256
+adsAmper.mode = 256
 # Create single-ended input on channel 0
-chan = AnalogIn(ads, ADS.P0)
-chan1 = AnalogIn(ads, ADS.P1)
-chan2 = AnalogIn(ads, ADS.P2)
-chan3 = AnalogIn(ads, ADS.P3)
+InputVoltage = AnalogIn(adsVoltage, ADS.P0)
+InputVoltage3 = AnalogIn(adsVoltage, ADS.P3)
+
+InputAmper = AnalogIn(adsAmper, ADS.P0, ADS.P1)
+
 # The ADS1015 and ADS1115 both have the same gain options.
 #
 #       GAIN    RANGE (V)
@@ -31,14 +32,16 @@ chan3 = AnalogIn(ads, ADS.P3)
 #         16    +/- 0.256
 #
 gains = (2 / 3, 1, 2, 4, 8, 16)
-ads.gain = gains[1]
-ads.data_rate = 860
+adsVoltage.gain = gains[1]
+adsAmper.gain = gains[1]
+adsVoltage.data_rate = 860
+adsAmper.data_rate = 860
 #Calibracion
 calibraA = [0]*2
 for i in range(10):
     c = ZMPT101B()
-    calibraA[0]+=c.calibracion(chan)
-    calibraA[1]+=c.calibracion(chan3)
+    calibraA[0]+=c.calibracion(InputVoltage)
+    calibraA[1]+=c.calibracion(InputVoltage3)
 
 #resp = requests.get('https://titulacion.sysnearnet.com/auth/api/login',params={'username': '1752349264', 'password': '1234'})
 if 201 == 201:
@@ -47,13 +50,16 @@ if 201 == 201:
     token = "36|BdJGfuW93NHB0B1JTyrb6fHzauakwuUyFuEUuPEp"
     while True:
         try:
-            voltaje = ZMPT101B(140,26432,[chan,chan1,chan2,chan3],[calibraA[0]/10,13221.0,13221.0,calibraA[1]/10])
+            voltaje = ZMPT101B(150,32767,[InputVoltage,InputVoltage3],[calibraA[0]/10,calibraA[1]/10])
+            corriente = SCT013100(100,0.0485,InputAmper,1000)
             v = voltaje.getVoltajeAC()
-            resp = requests.get('https://titulacion.sysnearnet.com/evento',headers={'Authorization': 'Bearer '+token},params={'v1': v[0],'v2': v[1],'v3': v[2],'v4': v[3]})
+            a = corriente.getCorriente()
+            resp = requests.get('https://titulacion.sysnearnet.com/evento',headers={'Authorization': 'Bearer '+token},params={'v1': v[0],'v2': v[1],'a1': a,'a2': 0})
             print (resp.text)
             if resp.status_code == 201:
-                print (resp.json())
+                #print (resp.json())
                 #time.sleep(0.3)
+                print("v1: {:>5.2f}\t v2: {:>5.2f}\t a1: {:>5.2f}\t a2".format(v[0],v[1],a,0))
         except:
             print ("ERROR")
             

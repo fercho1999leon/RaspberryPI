@@ -7,13 +7,13 @@ from sensores.ZMPT101B import ZMPT101B
 # Create the I2C bus
 i2c = busio.I2C(board.SCL, board.SDA)
 # Create the ADC object using the I2C bus
-ads = ADS.ADS1115(i2c)
+ads = ADS.ADS1115(i2c,address=0x48)
 #ads.mode = 256
 ads.mode = 256
 # Create single-ended input on channel 0
 chan = AnalogIn(ads, ADS.P0)
-chan1 = AnalogIn(ads, ADS.P1)
-chan2 = AnalogIn(ads, ADS.P2)
+chan1 = 0
+chan2 = 0
 chan3 = AnalogIn(ads, ADS.P3)
 # The ADS1015 and ADS1115 both have the same gain options.
 #
@@ -34,11 +34,11 @@ for i in range(10):
     c = ZMPT101B()
     calibraA[0]+=c.calibracion(chan)
     calibraA[1]+=c.calibracion(chan3)
-print(calibraA[1]/10)
-print(calibraA[0]/10)
+#print(calibraA[0]/10)
+#print(calibraA[1]/10)
 
 #Ejecucion de bucle infinito
 while True:
-    voltaje = ZMPT101B(140,26432,[chan,chan1,chan2,chan3],[calibraA[0]/10,13221.0,13221.0,calibraA[1]/10])
+    voltaje = ZMPT101B(140,32767,[chan,chan3],[calibraA[0]/10,calibraA[1]/10])
     v = voltaje.getVoltajeAC()
     print("v1: {:>5.3f}\tv2: {:>5.3f}".format(v[0],v[3]))
