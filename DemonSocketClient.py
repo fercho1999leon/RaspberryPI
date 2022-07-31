@@ -1,4 +1,6 @@
+from re import A
 import requests
+from multiprocessing.pool import ThreadPool
 from sensores.ZMPT101B import ZMPT101B
 import board
 import busio
@@ -41,25 +43,27 @@ calibraA = [0]*2
 for i in range(10):
     c = ZMPT101B()
     calibraA[0]+=c.calibracion(InputVoltage)
-    calibraA[1]+=c.calibracion(InputVoltage3)
-
+    calibraA[1]+=c.calibracion(InputVoltage3) 
 #resp = requests.get('https://titulacion.sysnearnet.com/auth/api/login',params={'username': '1752349264', 'password': '1234'})
 if 201 == 201:
     #resp = resp.json()
     #token = resp["token"]
-    token = "36|BdJGfuW93NHB0B1JTyrb6fHzauakwuUyFuEUuPEp"
+    token = "1|jvX8xPmkCN623vXRFS8j7zCox6aNr7OoIILsyiig"
     while True:
         try:
+            pool_voltaje = ThreadPool(processes=1)
+            pool_corriente = ThreadPool(processes=1)
             voltaje = ZMPT101B(150,32767,[InputVoltage,InputVoltage3],[calibraA[0]/10,calibraA[1]/10])
             corriente = SCT013100(100,0.0485,InputAmper,1000)
-            v = voltaje.getVoltajeAC()
-            a = corriente.getCorriente()
-            resp = requests.get('https://titulacion.sysnearnet.com/evento',headers={'Authorization': 'Bearer '+token},params={'v1': v[0],'v2': v[1],'a1': a,'a2': 0})
-            print (resp.text)
+            async_voltage = pool_voltaje.apply_async(voltaje.getVoltajeAC)
+            async_corriente = pool_voltaje.apply_async(corriente.getCorriente)
+            V = async_voltage.get()
+            A = async_corriente.get()
+            #print("v1: {:>5.2f}\t v2: {:>5.2f}\t a1: {:>5.2f}\t a2".format(V[0],V[1],A,0))
+            resp = requests.get('https://titulacion.sysnearnet.com/evento',headers={'Authorization': 'Bearer '+token},params={'v1': V[0],'v2': V[1],'a1': A,'a2': 0})
             if resp.status_code == 201:
-                #print (resp.json())
-                #time.sleep(0.3)
-                print("v1: {:>5.2f}\t v2: {:>5.2f}\t a1: {:>5.2f}\t a2".format(v[0],v[1],a,0))
+                print (resp.json())
+                print("v1: {:>5.2f}\t v2: {:>5.2f}\t a1: {:>5.2f}\t a2".format(V[0],V[1],A,0))
         except:
             print ("ERROR")
             
