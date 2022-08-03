@@ -47,7 +47,7 @@ for i in range(10):
 if 201 == 201:
     #resp = resp.json()
     #token = resp["token"]
-    token = "1|jvX8xPmkCN623vXRFS8j7zCox6aNr7OoIILsyiig"
+    token = "3|95GRMkgfLOYjWpqYfR0z3srrJHPr4g8AZ38RrM4pg"
     while True:
         try:
             pool_voltaje = ThreadPool(processes=1)
@@ -59,7 +59,7 @@ if 201 == 201:
             V = async_voltage.get()
             A = async_corriente.get()
             #print("v1: {:>5.2f}\t v2: {:>5.2f}\t a1: {:>5.2f}\t a2".format(V[0],V[1],A,0))
-            resp = requests.get('https://titulacion.sysnearnet.com/evento',headers={'Authorization': 'Bearer '+token},params={'v1': V[0],'v2': V[1],'a1': A,'a2': 0})
+            resp = requests.get('https://titulacion.sysnearnet.com/evento/dashboard',headers={'Authorization': 'Bearer '+token},params={'v1': V[0],'v2': V[1],'a1': A,'a2': 0})
             if resp.status_code == 201:
                 print (resp.json())
                 print("v1: {:>5.2f}\t v2: {:>5.2f}\t a1: {:>5.2f}\t a2".format(V[0],V[1],A,0))
