@@ -8,15 +8,21 @@ class SCT013100:
         self.__InputA = InputA
         self.__Range = Range
         self.__Sensivity = 0.70710678118
+        self.__result = [0]*2
     
-    def getCorriente(self):
-        if self.__InputA!= None:
+    def getArrayCurrent (self):
+        self.__result[0] = self.__getCorriente(self.__InputA[0])
+        self.__result[1] = self.__getCorriente(self.__InputA[1])
+        return self.__result
+    
+    def __getCorriente(self,InputA):
+        if InputA!= None:
             tiempo = self.__Mills()
-            rawAdc = self.__InputA.value
+            rawAdc = InputA.value
             minRaw = rawAdc
             maxRaw = rawAdc
             while (self.__Mills() - tiempo < self.__Range):
-                rawAdc = self.__InputA.value
+                rawAdc = InputA.value
                 if maxRaw > rawAdc : 
                     maxRaw = maxRaw
                 else:

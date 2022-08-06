@@ -23,6 +23,7 @@ InputVoltage = AnalogIn(adsVoltage, ADS.P0)
 InputVoltage3 = AnalogIn(adsVoltage, ADS.P3)
 
 InputAmper = AnalogIn(adsAmper, ADS.P0, ADS.P1)
+InputAmper2 = AnalogIn(adsAmper, ADS.P2, ADS.P3)
 
 # The ADS1015 and ADS1115 both have the same gain options.
 #
@@ -47,7 +48,11 @@ for i in range(10):
     calibraA[0]+=c.calibracion(InputVoltage)
     calibraA[1]+=c.calibracion(InputVoltage3) 
 
-token = "1|gZdi85H8sqjbjE5XDdeBuz8C1frboBcZVeZGKtWn"
+token = "6|BPOnoIZzD9feD21vFVDCqqEx7uRJm7WgCg7abZcM"
+#TITULACION 6|BPOnoIZzD9feD21vFVDCqqEx7uRJm7WgCg7abZcM
+#LOCAL 1|gZdi85H8sqjbjE5XDdeBuz8C1frboBcZVeZGKtWn
+urlApi = "titulacion.sysnearnet.com"
+protocoloApi = "https"
 csrf = None
 config_line = None
 config_timeActionError = None
@@ -55,6 +60,8 @@ config_timeLastError = None
 config_email = None
 config_vmax = None
 config_vmin = None
+V = None
+A = None
 
 #CONFIGURACION PARA RELE
 print (GPIO.getmode())
@@ -65,15 +72,17 @@ timer_exec_v_error = Timer()
 flag_arranque_motor = False
 
 def exec_v_error():
-    print('ARRANQUE')
-    GPIO.output(PIN, GPIO.HIGH)
-    time.sleep(8)
-    print('PARE')
-    GPIO.output(PIN, GPIO.LOW)
+    if V[0]<config_vmin or V[0]>config_vmax:
+        print('ARRANQUE')
+        GPIO.output(PIN, GPIO.HIGH)
+        time.sleep(8)
+        print('PARE')
+        GPIO.output(PIN, GPIO.LOW)
 
 
-config = requests.get('http://192.168.2.7/api/getconfig',headers={'Authorization': 'Bearer '+token})
+config = requests.get(protocoloApi+'://'+urlApi+'/api/getconfig',headers={'Authorization': 'Bearer '+token})
 if config.status_code == 200:
+    print (config.text)
     config = config.json()
     csrf = (config[0])['CSRF_TOKEN']
     config_line = ((config[0])["CONFIG"])["line"]
@@ -91,24 +100,20 @@ if 201 == 201:
             pool_voltaje = ThreadPool(processes=1)
             pool_corriente = ThreadPool(processes=1)
             voltaje = ZMPT101B(150,32767,[InputVoltage,InputVoltage3],[calibraA[0]/10,calibraA[1]/10])
-            corriente = SCT013100(100,0.0485,InputAmper,1000)
+            corriente = SCT013100(100,0.0485,[InputAmper,InputAmper2],1000)
             async_voltage = pool_voltaje.apply_async(voltaje.getVoltajeAC)
-            async_corriente = pool_voltaje.apply_async(corriente.getCorriente)
+            async_corriente = pool_voltaje.apply_async(corriente.getArrayCurrent)
             V = async_voltage.get()
             A = async_corriente.get()
-            if config_line==1:
-                if V[0]<config_vmin or V[0]>config_vmax:
-                    if timer_exec_v_error.getFlag():
-                        timer_exec_v_error.setTimeout(exec_v_error, 60*config_timeActionError)
-            else:
-                if V[1]<config_vmin or V[1]>config_vmax:
-                    if timer_exec_v_error.getFlag():
-                        timer_exec_v_error.setTimeout(exec_v_error, 60*config_timeActionError)
-
-            resp = requests.get('http://192.168.2.7/event/dashboard',headers={'Authorization': 'Bearer '+token},params={'v1': V[0],'v2': V[1],'a1': A,'a2': 0})
+            if V[0]<config_vmin or V[0]>config_vmax:
+                if timer_exec_v_error.getFlag():
+                    requests.get(protocoloApi+'://'+urlApi+'/send/correo',headers={'Authorization': 'Bearer '+token},params={'v1':V[0],'vmin':config_vmin,'vmax':config_vmax,'timeActionError':config_timeActionError,'email':config_email})
+                    timer_exec_v_error.setTimeout(exec_v_error, 60*config_timeActionError)
+                    
+            resp = requests.get(protocoloApi+'://'+urlApi+'/event/dashboard',headers={'Authorization': 'Bearer '+token},params={'v1': V[0],'v2': V[1],'a1': A[0],'a2': A[1]})
             if resp.status_code == 201:
                 print (resp.json())
-                print("v1: {:>5.2f}\t v2: {:>5.2f}\t a1: {:>5.2f}\t a2".format(V[0],V[1],A,0))
+                print("v1: {:>5.2f}\t v2: {:>5.2f}\t a1: {:>5.2f}\t a2: {:>5.2f}".format(V[0],V[1],A[0],A[1]))
         except:
             print ("ERROR")
             

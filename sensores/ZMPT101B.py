@@ -13,7 +13,7 @@ class ZMPT101B:
         self.__Muestra = [0]*4
         self.__VoltajeRef = VoltajeRef
         #self.__Sensivilidad = 0.037
-        self.__Sensivilidad = 0.069
+        self.__Sensivilidad = 0.039
         self.__ResolucionAnalogica = ResolucionAnalogica
         self.__CalibracionVoltaje0 = CalibracionVoltaje0  # ads1115 16 bits v0 = CalibracionVoltaje0
         self.__AnalogoInput = AnalogoInput
