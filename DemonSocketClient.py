@@ -65,19 +65,39 @@ A = None
 
 #CONFIGURACION PARA RELE
 print (GPIO.getmode())
-PIN = 6
-GPIO.setup(PIN, GPIO.OUT)
+PIN_ON_OFF = 6
+PIN_START = 7 #REVISAR QUE PIN UTILIZAR
+var_status_on_of = GPIO.setup(PIN_ON_OFF, GPIO.OUT)
+GPIO.setup(PIN_START, GPIO.OUT)
+gpio_up = GPIO.HIGH
+gpio_down = GPIO.LOW
+
+#UMBRAL DE VOLTAJE PARA CONSIDERAR ACTIVO EL ARRANQUE
+v_umbral = 80
 
 timer_exec_v_error = Timer()
 flag_arranque_motor = False
 
+#CONTADOR DE ARRANQUE
+print ("-"*15)
+print (var_status_on_of.value)
+GPIO.output(PIN_ON_OFF, gpio_up)
+print (var_status_on_of.value)
+GPIO.output(PIN_ON_OFF, gpio_down)
+print (var_status_on_of.value)
+print ("-"*15)
+
 def exec_v_error():
     if V[0]<config_vmin or V[0]>config_vmax:
-        print('ARRANQUE')
-        GPIO.output(PIN, GPIO.HIGH)
-        time.sleep(8)
-        print('PARE')
-        GPIO.output(PIN, GPIO.LOW)
+        GPIO.output(PIN_ON_OFF, gpio_up)
+        print('ON')
+        time.sleep(3)
+        while V[1]>v_umbral:
+            GPIO.output(PIN_START, gpio_down)
+            time.sleep(1.5)
+            GPIO.output(PIN_ON_OFF, gpio_up)
+            print('START')
+            time.sleep(3)
 
 
 config = requests.get(protocoloApi+'://'+urlApi+'/api/getconfig',headers={'Authorization': 'Bearer '+token})
@@ -106,9 +126,10 @@ if 201 == 201:
             V = async_voltage.get()
             A = async_corriente.get()
             if V[0]<config_vmin or V[0]>config_vmax:
-                if timer_exec_v_error.getFlag():
-                    requests.get(protocoloApi+'://'+urlApi+'/send/correo',headers={'Authorization': 'Bearer '+token},params={'v1':V[0],'vmin':config_vmin,'vmax':config_vmax,'timeActionError':config_timeActionError,'email':config_email})
-                    timer_exec_v_error.setTimeout(exec_v_error, 60*config_timeActionError)
+                if V[1]<v_umbral:
+                    if timer_exec_v_error.getFlag():
+                        requests.get(protocoloApi+'://'+urlApi+'/send/correo',headers={'Authorization': 'Bearer '+token},params={'v1':V[0],'vmin':config_vmin,'vmax':config_vmax,'timeActionError':config_timeActionError,'email':config_email})
+                        timer_exec_v_error.setTimeout(exec_v_error, 60*config_timeActionError)
                     
             resp = requests.get(protocoloApi+'://'+urlApi+'/event/dashboard',headers={'Authorization': 'Bearer '+token},params={'v1': V[0],'v2': V[1],'a1': A[0],'a2': A[1]})
             if resp.status_code == 201:
